@@ -12,10 +12,11 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-const Slider = () => {
+const Slider = ({bgColor}) => {
   const sliderContainerHeight = 200;
   const sliderToggleHeight = 40;
-
+  const sliderBorderRadius = 4;
+  console.log(bgColor);
   const sliderSteps = useMemo(() => {
     return {
       0: 0,
@@ -54,7 +55,7 @@ const Slider = () => {
 
   const isPressed = useSharedValue(false);
   const offset = useSharedValue({x: 0, y: 0});
-  const animatedStyles = useAnimatedStyle(() => {
+  const animatedStylesSliderToggle = useAnimatedStyle(() => {
     return {
       transform: [
         {translateX: offset.value.x},
@@ -66,6 +67,15 @@ const Slider = () => {
         },
       ],
       backgroundColor: isPressed.value ? '#f2f2f2' : '#fff',
+    };
+  });
+
+  const animatedStylesSliderBg = useAnimatedStyle(() => {
+    return {
+      height: withTiming(offset.value.y * -1 + sliderBorderRadius, {
+        duration: 0,
+        easing: Easing.inOut,
+      }),
     };
   });
 
@@ -143,10 +153,17 @@ const Slider = () => {
           style={[
             styles.sliderToggle,
             {height: sliderToggleHeight},
-            animatedStyles,
+            animatedStylesSliderToggle,
           ]}
         />
       </GestureDetector>
+      <Animated.View
+        style={[
+          styles.sliderColorBg,
+          animatedStylesSliderBg,
+          {backgroundColor: bgColor},
+        ]}
+      />
     </Animated.View>
   );
 };
@@ -155,7 +172,7 @@ function App() {
   return (
     <GestureHandlerRootView style={styles.bg}>
       <View style={styles.container}>
-        <Slider />
+        <Slider bgColor={'green'} />
       </View>
     </GestureHandlerRootView>
   );
@@ -184,6 +201,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   sliderToggle: {
+    zIndex: 2,
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -192,6 +210,15 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#EDEDED',
+  },
+  sliderColorBg: {
+    zIndex: 1,
+    position: 'absolute',
+    width: 50,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+    bottom: 0,
+    left: 0,
   },
 });
 
