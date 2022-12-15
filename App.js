@@ -20,13 +20,13 @@ const Slider = () => {
     return {
       0: 0,
       // 1: sliderContainerHeight * 0.125,
-      2: (sliderContainerHeight - sliderToggleHeight) * 0.25,
+      1: (sliderContainerHeight - sliderToggleHeight) * 0.25, // 40
       // 3: sliderContainerHeight * 0.375,
-      4: sliderContainerHeight * 0.5 - sliderToggleHeight / 2, // 80
+      2: sliderContainerHeight * 0.5 - sliderToggleHeight / 2, // 80
       // 5: sliderContainerHeight * 0.625,
-      6: (sliderContainerHeight - sliderToggleHeight) * 0.75,
+      3: (sliderContainerHeight - sliderToggleHeight) * 0.75, // 120
       // 7: sliderContainerHeight * 0.875,
-      8: sliderContainerHeight - sliderToggleHeight, // 160
+      4: sliderContainerHeight - sliderToggleHeight, // 160
     };
   }, [sliderContainerHeight]);
   // sliderSteps key
@@ -100,7 +100,7 @@ const Slider = () => {
     })
     .onEnd(e => {})
     .onFinalize(e => {
-      const finalOffsetY = (e.translationY + start.value.y) * -1;
+      const finalOffsetY = (e.translationY + start.value.y) * -1; // convert to positive number
       console.log(finalOffsetY);
       // calculate which sliderStep to move to
       // compare offset to sliderSteps values
@@ -109,8 +109,17 @@ const Slider = () => {
         gestureEndOffsetY = sliderContainerHeight - sliderToggleHeight;
       }
       for (const [k, v] of Object.entries(sliderSteps)) {
-        if (finalOffsetY <= v) {
+        if (finalOffsetY < v) {
           console.log('This is the step', k, v);
+          // compare current to next, if next exists
+          const lowDiff = finalOffsetY - sliderSteps[k - 1];
+          const highDiff = v - finalOffsetY;
+
+          const stepToGoTo = lowDiff <= highDiff ? sliderSteps[k - 1] : v;
+
+          gestureEndOffsetY = stepToGoTo;
+          break;
+        } else if (finalOffsetY === v) {
           gestureEndOffsetY = v;
           break;
         }
